@@ -15,11 +15,11 @@
 #include <QTRSensors.h>
 #include <ZumoReflectanceSensorArray.h>
 #include <ZumoMotors.h>
-#include <ZumoBuzzer.h>
+// #include <ZumoBuzzer.h>
 #include <Pushbutton.h>
 
 
-ZumoBuzzer buzzer;
+// ZumoBuzzer buzzer;
 ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
@@ -33,7 +33,7 @@ const int MAX_SPEED = 400;
 void setup()
 {
   // Play a little welcome song
-  buzzer.play(">g32>>c32");
+  // buzzer.play(">g32>>c32");
 
   // Initialize the reflectance sensors module
   reflectanceSensors.init();
@@ -65,14 +65,14 @@ void setup()
 
   // Turn off LED to indicate we are through with calibration
   digitalWrite(13, LOW);
-  buzzer.play(">g32>>c32");
+  // buzzer.play(">g32>>c32");
 
   // Wait for the user button to be pressed and released
   button.waitForButton();
 
   // Play music and wait for it to finish before we start driving.
-  buzzer.play("L16 cdegreg4");
-  while(buzzer.isPlaying());
+  // buzzer.play("L16 cdegreg4");
+  // while(buzzer.isPlaying());
 }
 
 void loop()

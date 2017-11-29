@@ -8,7 +8,6 @@
 #include <QTRSensors.h>
 #include <ZumoReflectanceSensorArray.h>
 #include <ZumoMotors.h>
-#include <ZumoBuzzer.h>
 #include <Pushbutton.h>
 
 #define MIN_SPEED 0
@@ -18,7 +17,6 @@
 #define ECHO_PIN 47      
 #define MAX_DISTANCE 200
 
-ZumoBuzzer buzzer;
 ZumoReflectanceSensorArray reflectanceSensors;
 ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
@@ -69,7 +67,6 @@ void setup()
   Serial.begin(9600);
 
   Serial.println("\n\n\nStarting...");
-  buzzer.play(">g32>>c32"); // Play welcome song
 
   reflectanceSensors.init(); // Initialize the reflectance sensors module
 
@@ -81,8 +78,6 @@ void setup()
   calibrate();
   motors.setSpeeds(0, 0);
   digitalWrite(CALIB_LED_PIN, LOW); // calibration LED off
-
-  buzzer.play(">g32>>c32");
 
   button.waitForButton(); // Wait for button click
 }

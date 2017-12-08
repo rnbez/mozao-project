@@ -22,6 +22,7 @@ ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 int lastError = 0;
+int count = 50;
 
 void calibrate()
 {
@@ -45,20 +46,45 @@ void calibrate()
 
 void turnLeft() {
   int i;
-  for (i = 0; i < 40; i++)
+  for (i = 0; i < 22; i++)
   {
     motors.setSpeeds(-200, 200);
     delay(20); 
   }
+  motors.setSpeeds(0, 0);
 }
 
 void turnRight() {
   int i;
-  for (i = 0; i < 40; i++)
+  for (i = 0; i < 22; i++)
   {
     motors.setSpeeds(200, -200);
     delay(20); 
   }
+  motors.setSpeeds(0, 0);
+}
+
+void goAhead() {
+  int i;
+  for (i = 0; i < 23; i++)
+  {
+    motors.setSpeeds(200, 200);
+    delay(20); 
+  }
+  motors.setSpeeds(0, 0);
+}
+
+void dodge() {
+  motors.setSpeeds(0, 0);
+  turnLeft();
+  goAhead();
+  turnRight();
+  goAhead();
+  goAhead();
+  turnRight();
+  goAhead();
+  turnLeft();
+  motors.setSpeeds(0, 0);
 }
 
 void setup()
@@ -84,15 +110,19 @@ void setup()
 
 void loop()
 {
-  int dist = sonar.ping_cm();
-  if (dist <= 5)
-  {
-    Serial.print("Ping: ");
-    Serial.print(dist); // Send ping, get distance in cm and print result (0 = outside set distance range)
-    Serial.println(" cm");
-    return;
+  if (count == 0) {
+    int dist = sonar.ping_cm();
+    if (dist <= 5)
+    {
+      Serial.print("Ping: ");
+      Serial.print(dist); // Send ping, get distance in cm and print result (0 = outside set distance range)
+      Serial.println(" cm");
+      dodge();
+      count = 50;
+      return;
+    }
   }
-  delay(50);
+  count--;
 
   unsigned int sensors[6];
   int pos = reflectanceSensors.readLine(sensors);
@@ -105,11 +135,11 @@ void loop()
   int m2Speed = constrain(MAX_SPEED - speedDifference, MIN_SPEED, MAX_SPEED);
 
   // detect when zumo is lifted from the ground
-  if (pos == 0 || pos == 2500)
-  {
-    m1Speed = MIN_SPEED;
-    m2Speed = MIN_SPEED;
-  }
+  // if (pos == 0 || pos == 2500)
+  // {
+  //   m1Speed = MIN_SPEED;
+  //   m2Speed = MIN_SPEED;
+  // }
 
   motors.setSpeeds(m1Speed, m2Speed);
 }

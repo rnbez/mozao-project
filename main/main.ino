@@ -22,7 +22,7 @@ ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 int lastError = 0;
-int count = 50;
+int count = 0;
 
 void calibrate()
 {
@@ -78,10 +78,12 @@ void dodge() {
   motors.setSpeeds(0, 0);
   turnLeft();
   goAhead();
+  goAhead();
   turnRight();
   goAhead();
   goAhead();
   turnRight();
+  goAhead();
   goAhead();
   turnLeft();
   motors.setSpeeds(0, 0);
@@ -110,19 +112,20 @@ void setup()
 
 void loop()
 {
-  if (count == 0) {
+  Serial.println(count);
+  if (count > 50) {
+    count = 0;
     int dist = sonar.ping_cm();
-    if (dist <= 5)
+    if (dist > 0 and dist <= 12)
     {
       Serial.print("Ping: ");
       Serial.print(dist); // Send ping, get distance in cm and print result (0 = outside set distance range)
       Serial.println(" cm");
       dodge();
-      count = 50;
       return;
     }
   }
-  count--;
+  count++;
 
   unsigned int sensors[6];
   int pos = reflectanceSensors.readLine(sensors);
@@ -134,12 +137,12 @@ void loop()
   int m1Speed = constrain(MAX_SPEED + speedDifference, MIN_SPEED, MAX_SPEED);
   int m2Speed = constrain(MAX_SPEED - speedDifference, MIN_SPEED, MAX_SPEED);
 
-  // detect when zumo is lifted from the ground
-  // if (pos == 0 || pos == 2500)
-  // {
-  //   m1Speed = MIN_SPEED;
-  //   m2Speed = MIN_SPEED;
-  // }
+  //detect when zumo is lifted from the ground
+  if (pos == 0 || pos == 2500)
+  {
+    m1Speed = MIN_SPEED;
+    m2Speed = MIN_SPEED;
+  }
 
   motors.setSpeeds(m1Speed, m2Speed);
 }

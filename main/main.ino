@@ -3,6 +3,7 @@
 #include <ZumoMotors.h>
 // #include <ZumoBuzzer.h>
 #include <Pushbutton.h>
+#include <Servo.h>
 
 /* This example uses the Zumo Reflectance Sensor Array
  * to navigate a black line maze with no loops. This program
@@ -46,7 +47,7 @@
 // Motor speed when driving straight. SPEED should always
 // have a positive value, otherwise the Zumo will travel in the
 // wrong direction.
-#define SPEED 300 
+#define SPEED 200 
 
 // Thickness of your line in inches
 #define LINE_THICKNESS 1.0 
@@ -80,8 +81,21 @@ Pushbutton button(ZUMO_BUTTON);
 char path[100] = "";
 unsigned char path_length = 0; // the length of the path
 
+
+#define SENSOR_PIN 33
+#define SERVO_PIN 44
+#define SERVO_OPEN_POS 90
+
+Servo srv;
+int detectionRead = 0;
+int pos = 0;
+
+boolean closed_claw = false;
+
 void setup()
 {
+  pinMode(SENSOR_PIN, INPUT);
+  Serial.begin(9600);
 
   unsigned int sensors[6];
   unsigned short count = 0;
@@ -266,7 +280,8 @@ void followSegment()
   int power_difference;
   
   while(1)
-  {     
+  {
+    claw_actuator();     
     // Get the position of the line.
     position = reflectanceSensors.readLine(sensors);
      
@@ -389,7 +404,7 @@ void solveMaze()
         unsigned char dir = selectTurn(found_left, found_straight, found_right);
         
         // Make the turn indicated by the path.
-		turn(dir);
+		    turn(dir);
          
         // Store the intersection in the path variable.
         path[path_length] = dir;
@@ -401,7 +416,6 @@ void solveMaze()
          
         // Simplify the learned path.
         simplifyPath();
-         
     }
 }
 
@@ -497,3 +511,31 @@ void simplifyPath()
   // The path is now two steps shorter.
   path_length -= 2;
 }
+
+void claw_actuator(){
+  if(!closed_claw)
+  {
+    detectionRead = digitalRead(SENSOR_PIN);
+    Serial.println(detectionRead);
+    if (detectionRead == 0)
+    {
+      srv.attach(SERVO_PIN);
+      srv.write(SERVO_OPEN_POS);
+      Serial.println("Objeto : Detectado");
+      for (pos = SERVO_OPEN_POS; pos >= 0; pos -= 1)
+      {
+          srv.write(pos);
+          delay(5);
+      }
+      closed_claw = true;
+      srv.detach();
+      /*for (pos = 0; pos <= SERVO_OPEN_POS; pos += 1)
+      {
+          srv.write(pos);
+          delay(10);
+      }
+      srv.write(SERVO_OPEN_POS);*/
+     }
+  }
+}
+
